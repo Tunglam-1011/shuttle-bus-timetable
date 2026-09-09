@@ -133,13 +133,27 @@ const toastContainer = document.querySelector("#toast-container");
 const dateFormatter = new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "long" });
 const clockFormatter = new Intl.DateTimeFormat("zh-CN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
 
+let toastTimer = null;
+
 function showToast(text) {
   if (!toastContainer) return;
+
+  // 清除前一个未结束的提示与计时器，避免叠加堆积
+  if (toastTimer) {
+    clearTimeout(toastTimer);
+    toastTimer = null;
+  }
+  toastContainer.replaceChildren();
+
   const toast = document.createElement("div");
   toast.className = "toast";
   toast.textContent = text;
   toastContainer.appendChild(toast);
-  setTimeout(() => toast.remove(), 2600);
+
+  toastTimer = setTimeout(() => {
+    toast.remove();
+    toastTimer = null;
+  }, 2400);
 }
 
 function updateClock(now = new Date()) {
