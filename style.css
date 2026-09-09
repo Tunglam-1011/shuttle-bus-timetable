@@ -615,8 +615,9 @@ body {
   padding: 5px 10px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.08s ease, color 0.08s ease, border-color 0.08s ease, box-shadow 0.08s ease;
   white-space: nowrap;
+  outline: none;
 }
 
 .pill-btn:hover {
@@ -667,13 +668,22 @@ body {
   padding: 5px 9px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.08s ease, color 0.08s ease, border-color 0.08s ease, box-shadow 0.08s ease;
   white-space: nowrap;
+  outline: none;
 }
 
 .action-pill-btn:hover {
   border-color: var(--border-active);
   color: var(--primary);
+}
+
+.action-pill-btn:active, .action-pill-btn.flash {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 0 6px var(--border-active);
+  transition: none;
 }
 
 .action-pill-btn.active {
@@ -889,4 +899,33 @@ body {
   .query-filters {
     grid-template-columns: 1fr;
   }
+}
+
+/* 末班车提示徽章与横条 */
+.last-bus-badge {
+  background: var(--rose) !important;
+  color: #ffffff !important;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+}
+
+.last-bus-banner {
+  margin-top: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(215, 46, 34, 0.08);
+  border: 1px solid rgba(215, 46, 34, 0.22);
+  color: var(--rose);
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+[data-theme="dark"] .last-bus-banner {
+  background: rgba(248, 113, 113, 0.12);
+  border-color: rgba(248, 113, 113, 0.3);
 }

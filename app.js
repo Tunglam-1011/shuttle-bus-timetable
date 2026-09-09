@@ -70,19 +70,17 @@ function dateKey(date) {
 function getScheduleTypeInfo(date) {
   const key = dateKey(date);
   const weekend = isWeekend(date);
-  const weekNames = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
-  const weekDayName = weekNames[date.getDay()];
 
   if (specialWorkdayDates.has(key)) {
-    return { type: "weekday", desc: `${weekDayName} (调休补班) · 工作日服务时刻表` };
+    return { type: "weekday", desc: "工作日服务时刻表" };
   }
   if (holidayDates.has(key)) {
-    return { type: "weekend", desc: `${weekDayName} (法定节假日) · 周末及节假日时刻表` };
+    return { type: "weekend", desc: "周末及法定节假日时刻表" };
   }
   if (weekend) {
-    return { type: "weekend", desc: `${weekDayName} · 周末及法定节假日时刻表` };
+    return { type: "weekend", desc: "周末及法定节假日时刻表" };
   }
-  return { type: "weekday", desc: `${weekDayName} · 工作日服务时刻表` };
+  return { type: "weekday", desc: "工作日服务时刻表" };
 }
 
 function getScheduleType(date) {
@@ -114,7 +112,6 @@ let selectedDirection = "outbound";
 let selectedReturnStop = "zhang";
 let currentActiveDayType = getScheduleType(new Date());
 let selectedQueryScheduleType = currentActiveDayType;
-let filterUnpassedOnly = false;
 
 // ==================== DOM 元素 ====================
 const timeElement = document.querySelector("#current-time");
@@ -127,7 +124,6 @@ const boardingStopPicker = document.querySelector("#boarding-stop-picker");
 const hourSelect = document.querySelector("#hour-select");
 const scheduleTypeSelect = document.querySelector("#schedule-type-select");
 const queryResult = document.querySelector("#query-result");
-const filterUnpassedOnlyCheckbox = document.querySelector("#filter-unpassed-only");
 const toastContainer = document.querySelector("#toast-container");
 
 const dateFormatter = new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "long" });
@@ -192,7 +188,13 @@ function render() {
   }
 
   if (liveRemainingCountElement) {
-    liveRemainingCountElement.textContent = `今日还剩 ${upcoming.length} 班`;
+    if (upcoming.length === 0) {
+      liveRemainingCountElement.textContent = "已结束运营";
+    } else if (upcoming.length === 1) {
+      liveRemainingCountElement.textContent = "今日仅剩末班车";
+    } else {
+      liveRemainingCountElement.textContent = `今日还剩 ${upcoming.length} 班`;
+    }
   }
 
   if (routeTitleElement) {
@@ -213,13 +215,11 @@ function render() {
   departureListElement.replaceChildren();
 
   if (!upcoming.length) {
-    const firstBus = route[dayType][0];
-    const firstTime = Array.isArray(firstBus) ? firstBus[0] : firstBus;
     const empty = document.createElement("div");
     empty.className = "empty-state departure-card";
     empty.innerHTML = `
-      <strong>今日班次已全部结束</strong>
-      <p>明日首班车发车时间为 <strong>${firstTime}</strong>，请提前安排出行。</p>
+      <strong>今日班车已结束运营</strong>
+      <p>请选择其他交通工具</p>
     `;
     departureListElement.append(empty);
     return;
@@ -229,14 +229,33 @@ function render() {
   const nextBus = upcoming[0];
   const remainingMs = nextBus.pickup - now;
   const isImminent = remainingMs <= 5 * 60 * 1000;
+  const lastBusTime = allBuses[allBuses.length - 1].time;
+  const isNextBusLast = nextBus.time === lastBusTime;
+
+  let imminentMessage = "";
+  if (isImminent) {
+    if (selectedDirection === "outbound") {
+      imminentMessage = "车辆即将发车";
+    } else {
+      imminentMessage = selectedReturnStop === "daoyuan" ? "车辆即将发车" : "车辆即将到站发车";
+    }
+  }
 
   const heroCard = document.createElement("article");
   heroCard.className = `departure-card hero-card ${isImminent ? "imminent" : ""}`;
 
+  const orderBadgeHtml = isNextBusLast
+    ? `<span class="order-badge last-bus-badge">今日末班车</span>`
+    : `<span class="order-badge">第 1 趟</span>`;
+
+  const lastBusBannerHtml = isNextBusLast
+    ? `<div class="last-bus-banner">⚠️ 今日末班车，错过将无后续班车，请务必提前候车</div>`
+    : "";
+
   heroCard.innerHTML = `
     <div class="card-top-row">
       <div class="departure-label">
-        <span class="order-badge">第 1 趟</span>
+        ${orderBadgeHtml}
         <span>${selectedDirection === "return" ? `${returnStop.label} 上车` : "泰瑞府发车"}</span>
       </div>
       <span class="departure-countdown">${formatRemaining(remainingMs)}</span>
@@ -247,7 +266,8 @@ function render() {
         ${nextBus.secondaryTime ? `<p class="origin-departure">道远楼东始发：${nextBus.secondaryTime}</p>` : ""}
       </div>
     </div>
-    ${isImminent ? `<p class="imminent-message">🔥 ${selectedDirection === "outbound" ? "即将发车，请尽快候车" : "车辆即将到站发车"}</p>` : ""}
+    ${lastBusBannerHtml}
+    ${isImminent ? `<p class="imminent-message">${imminentMessage}</p>` : ""}
   `;
   departureListElement.append(heroCard);
 
@@ -263,7 +283,7 @@ function render() {
       const diffMs = bus.pickup - now;
       subCard.innerHTML = `
         <div class="sub-card-left">
-          <span class="sub-card-label">后续 · 第 ${index + 2} 趟</span>
+          ${bus.time === lastBusTime ? `<span class="sub-card-label" style="color:var(--rose);font-weight:800">后续 · 今日末班车</span>` : `<span class="sub-card-label">后续 · 第 ${index + 2} 趟</span>`}
           <time class="sub-card-time">${bus.time}</time>
           ${bus.secondaryTime ? `<span style="font-size:0.7rem;color:var(--text-muted)">始发 ${bus.secondaryTime}</span>` : ""}
         </div>
@@ -322,10 +342,6 @@ function renderQuery() {
     });
   }
 
-  // 仅显示未发车班次
-  if (filterUnpassedOnly && isTodaySchedule) {
-    rows = rows.filter(({ primary }) => timeToday(primary, now) >= now);
-  }
 
   queryResult.replaceChildren();
 
@@ -338,7 +354,7 @@ function renderQuery() {
     const cell = document.createElement("div");
     cell.className = "query-cell";
 
-    let statusText = "常规";
+    let statusText = "";
     const isTrueNext = isTodaySchedule && primary === trueNextBusTime;
 
     if (isTodaySchedule) {
@@ -366,7 +382,7 @@ function renderQuery() {
     cell.innerHTML = `
       <time>${primary}</time>
       ${source ? `<span class="cell-origin">始发 ${source}</span>` : ""}
-      <span class="cell-status">${statusText}</span>
+      ${statusText ? `<span class="cell-status">${statusText}</span>` : ""}
     `;
 
     cell.addEventListener("click", () => {
@@ -425,16 +441,16 @@ if (scheduleTypeSelect) {
   });
 }
 
-if (filterUnpassedOnlyCheckbox) {
-  filterUnpassedOnlyCheckbox.addEventListener("change", (e) => {
-    filterUnpassedOnly = e.target.checked;
-    renderQuery();
-  });
-}
 
 const quickNextBtn = document.querySelector("#btn-quick-next");
 if (quickNextBtn) {
   quickNextBtn.addEventListener("click", () => {
+    // 点击时瞬间亮起高光，随后渐变恢复，避免常亮引起歧义
+    quickNextBtn.classList.add("flash");
+    setTimeout(() => {
+      quickNextBtn.classList.remove("flash");
+      quickNextBtn.blur();
+    }, 75);
     const now = new Date();
     const todayType = getScheduleType(now);
     const isTodaySchedule = selectedQueryScheduleType === todayType;
@@ -454,7 +470,7 @@ if (quickNextBtn) {
     const upcoming = allRows.filter(({ primary }) => timeToday(primary, now) >= now);
 
     if (!upcoming.length) {
-      showToast("今日班次已全部结束");
+      showToast("今日班车已结束运营");
       return;
     }
 
@@ -505,17 +521,6 @@ if (pillWeekdayBtn && pillWeekendBtn) {
   });
 }
 
-// 仅未发车切换按键
-const filterUnpassedBtn = document.querySelector("#filter-unpassed-btn");
-if (filterUnpassedBtn) {
-  filterUnpassedBtn.addEventListener("click", () => {
-    filterUnpassedOnly = !filterUnpassedOnly;
-    filterUnpassedBtn.classList.toggle("active", filterUnpassedOnly);
-    filterUnpassedBtn.setAttribute("aria-pressed", String(filterUnpassedOnly));
-    renderQuery();
-    showToast(filterUnpassedOnly ? "已开启：仅显示未发车班次" : "已显示全天所有班次");
-  });
-}
 
 // 主标签页切换 (实时班次 vs 班次查询)
 document.querySelectorAll(".page-tab").forEach((button) => {

@@ -92,12 +92,9 @@
           <select id="hour-select" autocomplete="off" aria-label="选择时段"></select>
         </div>
 
-        <!-- 右侧：快捷操作组 (仅未发车 + 定位下一班) -->
+        <!-- 右侧：快捷操作组 (定位最近班次) -->
         <div class="toolbar-actions">
-          <button id="filter-unpassed-btn" class="action-pill-btn" type="button" title="仅显示未发车班次" aria-pressed="false">
-            仅未发车
-          </button>
-          <button id="btn-quick-next" class="action-pill-btn primary" type="button" title="定位至距离当前时间最近的发车班次">
+          <button id="btn-quick-next" class="action-pill-btn" type="button" title="定位至距离当前时间最近的发车班次">
             定位最近班次
           </button>
         </div>
@@ -108,8 +105,7 @@
         <option value="weekday">工作日服务时刻表</option>
         <option value="weekend">周末及法定节假日时刻表</option>
       </select>
-      <input type="checkbox" id="filter-unpassed-only" style="display:none;" aria-hidden="true">
-
+      
       <!-- 日历方格时刻表 -->
       <div class="query-result" id="query-result" aria-live="polite">
         <!-- JS 动态注入方格 -->
