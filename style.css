@@ -1,54 +1,5 @@
-:root {
-  color-scheme: light;
-  font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
-  background: #f4f0e7;
-  color: #193128;
-}
-
-* { box-sizing: border-box; }
-
-body { margin: 0; min-width: 320px; }
-
-.app-shell { width: min(100%, 680px); margin: 0 auto; padding: 20px 16px 36px; }
-
-.hero { background: #143b2b; color: #fffdf7; border-radius: 22px; padding: 28px 24px; box-shadow: 0 12px 28px rgb(20 59 43 / 18%); }
-.eyebrow { margin: 0 0 6px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; opacity: .78; }
-h1 { margin: 0; font-size: clamp(1.8rem, 7vw, 2.5rem); letter-spacing: .04em; }
-.clock { margin: 16px 0 0; font-variant-numeric: tabular-nums; opacity: .9; }
-
-.direction-switcher { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 18px 0; padding: 5px; border-radius: 14px; background: #e4ddd0; }
-.direction-button { min-height: 52px; border: 0; border-radius: 10px; background: transparent; color: #466055; padding: 8px; font: inherit; font-size: .92rem; font-weight: 700; cursor: pointer; }
-.direction-button.active { background: #fffdf8; color: #143b2b; box-shadow: 0 2px 8px rgb(41 52 46 / 13%); }
-.direction-button:focus-visible { outline: 3px solid #d47728; outline-offset: 2px; }
-
-.route-summary { margin: 27px 4px 18px; }
-.route-summary p { margin: 0; color: #68766e; font-size: .92rem; }
-.route-summary h2 { margin: 4px 0; font-size: 1.35rem; }
-.boarding-stop-picker { margin: 0 4px 22px; }
-.boarding-stop-picker > p { margin: 0 0 8px; color: #68766e; font-size: .88rem; font-weight: 700; }
-.stop-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-.stop-button { min-height: 40px; border: 1px solid #d8d0c1; border-radius: 10px; background: #fffdf8; color: #466055; font: inherit; font-size: .9rem; font-weight: 700; cursor: pointer; }
-.stop-button.active { border-color: #143b2b; background: #e7f0eb; color: #143b2b; }
-.stop-button:focus-visible { outline: 3px solid #d47728; outline-offset: 2px; }
-
-.section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
-.section-heading h2 { margin: 0; font-size: 1.1rem; }
-.section-heading span { color: #748079; font-size: .78rem; white-space: nowrap; }
-.departure-list { display: grid; gap: 12px; }
-.departure-card { min-height: 132px; padding: 18px 20px; border: 1px solid #dfd8ca; border-radius: 18px; background: #fffdf8; box-shadow: 0 4px 12px rgb(40 47 42 / 6%); }
-.departure-card.imminent { border-color: #ecb1a7; background: #fff9f8; }
-.departure-label { margin: 0 0 6px; color: #728078; font-size: .86rem; font-weight: 700; }
-.departure-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
-.departure-time { font-size: clamp(2.1rem, 10vw, 3.1rem); font-weight: 800; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
-.origin-departure { margin: 4px 0 0; color: #77837d; font-size: .78rem; font-weight: 600; letter-spacing: 0; }
-.departure-countdown { color: #617068; font-size: .95rem; font-weight: 700; white-space: nowrap; }
-.imminent-message { margin: 5px 0 0; color: #c5251b; font-size: .92rem; font-weight: 800; }
-.imminent .departure-time { color: #c5251b; animation: departure-pulse 1s ease-in-out infinite; }
-.empty-state { padding: 28px 20px; border-radius: 18px; background: #fffdf8; border: 1px solid #dfd8ca; text-align: center; }
-.empty-state strong { display: block; font-size: 1.15rem; }
-.empty-state p { margin: 8px 0 0; color: #68766e; }
-.schedule-note { margin: 26px 4px 0; color: #7a847e; font-size: .78rem; line-height: 1.65; }
-
-@keyframes departure-pulse { 50% { opacity: .35; } }
-@media (prefers-reduced-motion: reduce) { .imminent .departure-time { animation: none; } }
-@media (min-width: 700px) { .app-shell { padding-top: 40px; } .departure-list { grid-template-columns: 1fr 1fr; } }
+:root{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;background:#eff0ff;color:#17172b}*{box-sizing:border-box}body{margin:0;min-width:320px}.app-shell{width:min(100%,760px);margin:auto;padding:22px 16px 38px}.hero{display:flex;justify-content:space-between;align-items:start;padding:26px;border-radius:25px;background:linear-gradient(135deg,#7779dd,#9abcf1);color:#fff;box-shadow:0 16px 35px #7779dd40}.eyebrow{margin:0 0 5px;font-size:.72rem;letter-spacing:.15em;font-weight:800;opacity:.8}h1{margin:0;font-size:2.1rem;letter-spacing:.05em}.clock{margin:15px 0 0;font-variant-numeric:tabular-nums}.hero-mark{font-size:2.4rem}.page-tabs{display:flex;gap:24px;margin:22px 5px 12px}.page-tab{border:0;background:transparent;padding:8px 0;color:#77778e;font:inherit;font-weight:800;cursor:pointer}.page-tab.active{color:#3537a7;border-bottom:3px solid #6769d7}.control-panel{padding:14px;border:1px solid #e3e3f2;border-radius:18px;background:#fff;box-shadow:0 8px 20px #3b3b7010}.direction-switcher,.stop-options{display:grid;gap:8px}.direction-switcher{grid-template-columns:1fr 1fr}.direction-button,.stop-button{min-height:44px;border:1px solid #e0e1ef;border-radius:10px;background:#f8f8ff;color:#52536e;font:inherit;font-size:.88rem;font-weight:700;cursor:pointer}.direction-button.active,.stop-button.active{border-color:#7779dd;background:#ececff;color:#3537a7}.boarding-stop-picker{margin-top:14px}.boarding-stop-picker p{margin:0 0 8px;color:#696a82;font-size:.82rem;font-weight:800}.stop-options{grid-template-columns:repeat(3,1fr)}.view{margin-top:24px}.route-summary p{margin:0;color:#787a92;font-size:.9rem}.route-summary h2{margin:5px 0;font-size:1.45rem}.section-heading{display:flex;justify-content:space-between;align-items:baseline;margin:22px 0 10px}.section-heading h2{margin:0;font-size:1.1rem}.section-heading span{color:#83859b;font-size:.78rem}.departure-list{display:grid;gap:12px}.departure-card,.query-result{border:1px solid #e3e3f0;border-radius:18px;background:#fff;box-shadow:0 8px 20px #3535620c}.departure-card{min-height:128px;padding:18px 20px}.departure-card.imminent{border-color:#ffb8af;background:#fffafa}.departure-label{margin:0 0 5px;color:#7d7e94;font-size:.84rem;font-weight:800}.departure-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.departure-time{font-size:clamp(2.15rem,10vw,3.1rem);font-weight:900;letter-spacing:-.05em;font-variant-numeric:tabular-nums}.origin-departure{margin:3px 0 0;color:#7d7e94;font-size:.78rem;font-weight:700}.departure-countdown{color:#5f61a4;font-size:.9rem;font-weight:800;white-space:nowrap}.imminent-message{margin:5px 0 0;color:#d72e22;font-size:.88rem;font-weight:900}.imminent .departure-time{color:#d72e22;animation:pulse 1s ease-in-out infinite}.hour-picker{display:flex;align-items:center;justify-content:space-between;padding:15px 17px;border-radius:15px;background:#fff;font-weight:800}.hour-picker select{border:1px solid #dfe0ee;border-radius:8px;padding:8px;background:#f8f8ff;font:inherit;color:#3537a7}.query-result{margin-top:12px;padding:8px 18px}.query-row{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #ececf4}.query-row:last-child{border:0}.query-row time{font-size:1.3rem;font-weight:900;font-variant-numeric:tabular-nums}.query-row span{color:#74758e;font-size:.85rem}.empty-state{padding:28px 18px;text-align:center}.empty-state strong{display:block}.empty-state p{margin:8px 0 0;color:#787a92}.schedule-note{margin:26px 4px 0;color:#85869a;font-size:.77rem;line-height:1.65}@keyframes pulse{50%{opacity:.35}}@media(prefers-reduced-motion:reduce){.imminent .departure-time{animation:none}}@media(min-width:680px){.departure-list{grid-template-columns:1fr 1fr}.app-shell{padding-top:42px}}
+.clock{display:inline-block;padding:7px 10px;border-radius:9px;background:#ffffff24;font-size:1.12rem;font-weight:800;letter-spacing:.03em}
+.query-time{display:flex;align-items:baseline;gap:8px}.query-time small{color:#74758e;font-size:.76rem;font-weight:700;white-space:nowrap}
+.schedule-type-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0 10px}.schedule-type-button{min-height:40px;border:1px solid #e0e1ef;border-radius:10px;background:#fff;color:#52536e;font:inherit;font-size:.83rem;font-weight:700;cursor:pointer}.schedule-type-button.active{border-color:#7779dd;background:#ececff;color:#3537a7}
+.query-filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0 10px}.query-filters .hour-picker{padding:11px 13px;font-size:.82rem}.query-filters select{max-width:100%;font-size:.8rem;padding:7px}

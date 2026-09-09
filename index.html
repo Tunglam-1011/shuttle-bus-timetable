@@ -1,69 +1,8 @@
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#143b2b" />
-    <title>泰瑞府班车</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <main class="app-shell">
-      <header class="hero">
-        <p class="eyebrow">OFF-CAMPUS SHUTTLE BUS</p>
-        <h1>泰瑞府班车</h1>
-        <p class="clock" id="current-time" aria-live="polite"></p>
-      </header>
-
-      <section class="direction-switcher" aria-label="选择行车方向">
-        <button class="direction-button active" type="button" data-direction="outbound" aria-pressed="true">
-          泰瑞府 → 道远楼东
-        </button>
-        <button class="direction-button" type="button" data-direction="return" aria-pressed="false">
-          道远楼东 → 泰瑞府
-        </button>
-      </section>
-
-      <section class="route-summary" aria-live="polite">
-        <p id="service-day"></p>
-        <h2 id="route-title">泰瑞府 → 道远楼东</h2>
-        <p id="route-detail">从泰瑞府发车</p>
-      </section>
-
-      <section class="boarding-stop-picker" id="boarding-stop-picker" aria-labelledby="boarding-stop-title" hidden>
-        <p id="boarding-stop-title">我的上车站</p>
-        <div class="stop-options" role="group" aria-label="选择返程上车站">
-          <button class="stop-button" type="button" data-stop="daoyuan" aria-pressed="false">道远楼东</button>
-          <button class="stop-button active" type="button" data-stop="zhang" aria-pressed="true">张灵斌楼</button>
-          <button class="stop-button" type="button" data-stop="teaching" aria-pressed="false">教学综合楼</button>
-        </div>
-      </section>
-
-      <section class="departures" aria-labelledby="departures-title">
-        <div class="section-heading">
-          <h2 id="departures-title">接下来两趟</h2>
-          <span id="timing-note">以发车站时间为准</span>
-        </div>
-        <div class="departure-list" id="departure-list" aria-live="polite"></div>
-      </section>
-
-      <p class="schedule-note">时刻表来源：泰瑞府校外班车试运行时刻表。工作日：周一至周五；周末及公众假期使用周末时刻表。</p>
-    </main>
-
-    <template id="departure-template">
-      <article class="departure-card">
-        <p class="departure-label"></p>
-        <div class="departure-row">
-          <div>
-            <time class="departure-time"></time>
-            <p class="origin-departure" hidden></p>
-          </div>
-          <span class="departure-countdown"></span>
-        </div>
-        <p class="imminent-message" hidden>即将发车</p>
-      </article>
-    </template>
-
-    <script src="app.js"></script>
-  </body>
-</html>
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#7277dc"><title>泰瑞府班车</title><link rel="stylesheet" href="style.css"></head><body><main class="app-shell">
+<header class="hero"><div><p class="eyebrow">TAIRUFU SHUTTLE</p><h1>班车助手</h1><p class="clock" id="current-time" aria-live="polite"></p></div><span class="hero-mark">✦</span></header>
+<nav class="page-tabs"><button class="page-tab active" data-page="live" aria-pressed="true">实时班次</button><button class="page-tab" data-page="search" aria-pressed="false">班次查询</button></nav>
+<section class="control-panel"><div class="direction-switcher"><button class="direction-button active" type="button" data-direction="outbound" aria-pressed="true">泰瑞府 → 道远楼东</button><button class="direction-button" type="button" data-direction="return" aria-pressed="false">道远楼东 → 泰瑞府</button></div><div class="boarding-stop-picker" id="boarding-stop-picker" hidden><p>我的上车站</p><div class="stop-options"><button class="stop-button" type="button" data-stop="daoyuan" aria-pressed="false">道远楼东</button><button class="stop-button active" type="button" data-stop="zhang" aria-pressed="true">张灵斌楼</button><button class="stop-button" type="button" data-stop="teaching" aria-pressed="false">综合教学楼</button></div></div></section>
+<section class="view active" id="live-view"><section class="route-summary"><p id="service-day"></p><h2 id="route-title">泰瑞府 → 道远楼东</h2><p id="route-detail">从泰瑞府发车</p></section><section class="departures"><div class="section-heading"><h2>接下来两趟</h2><span id="timing-note" hidden></span></div><div class="departure-list" id="departure-list" aria-live="polite"></div></section></section>
+<section class="view" id="search-view" hidden><section class="route-summary"><p>按小时查看</p><h2>班次查询</h2><p id="search-description">选择日期类型与时段，查看全部班次</p></section><div class="query-filters"><label class="hour-picker">日期类型<select id="schedule-type-select" aria-label="选择日期类型"><option value="weekday">工作日</option><option value="weekend">周末及法定节假日</option></select></label><label class="hour-picker">选择时段<select id="hour-select" aria-label="选择时段"></select></label></div><div class="query-result" id="query-result" aria-live="polite"></div></section>
+<p class="schedule-note">工作日（周一至周五）使用工作日服务时刻表；周末及法定节假日使用周末服务时刻表。到站时间仅供参考，请以现场情况为准。</p></main>
+<template id="departure-template"><article class="departure-card"><p class="departure-label"></p><div class="departure-row"><div><time class="departure-time"></time><p class="origin-departure" hidden></p></div><span class="departure-countdown"></span></div><p class="imminent-message" hidden>即将到站发车</p></article></template><script src="app.js"></script></body></html>

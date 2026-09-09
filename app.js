@@ -23,10 +23,11 @@ const schedules = {
 
 let selectedDirection = "outbound";
 let selectedReturnStop = "zhang";
+let selectedQueryScheduleType;
 const returnStops = {
   daoyuan: { label: "道远楼东", offset: 0 },
   zhang: { label: "张灵斌楼", offset: 3 },
-  teaching: { label: "教学综合楼", offset: 5 }
+  teaching: { label: "综合教学楼", offset: 5 }
 };
 const timeElement = document.querySelector("#current-time");
 const serviceDayElement = document.querySelector("#service-day");
@@ -36,10 +37,32 @@ const timingNoteElement = document.querySelector("#timing-note");
 const departureListElement = document.querySelector("#departure-list");
 const departureTemplate = document.querySelector("#departure-template");
 const boardingStopPicker = document.querySelector("#boarding-stop-picker");
+const hourSelect = document.querySelector("#hour-select");
+const scheduleTypeSelect = document.querySelector("#schedule-type-select");
+const queryResult = document.querySelector("#query-result");
 const dateFormatter = new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "long" });
 const clockFormatter = new Intl.DateTimeFormat("zh-CN", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
 
 function isWeekend(date) { return date.getDay() === 0 || date.getDay() === 6; }
+
+const holidayDates = new Set([
+  "2026-09-25", "2026-10-01", "2026-10-02", "2026-10-03",
+  "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07"
+]);
+const specialWorkdayDates = new Set(["2026-09-20"]);
+
+function dateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function getScheduleType(date) {
+  const key = dateKey(date);
+  if (specialWorkdayDates.has(key)) return "weekday";
+  if (holidayDates.has(key)) return "weekend";
+  return isWeekend(date) ? "weekend" : "weekday";
+}
+
+selectedQueryScheduleType = getScheduleType(new Date());
 
 function timeToday(time, now) {
   const [hours, minutes] = time.split(":").map(Number);
@@ -54,7 +77,7 @@ function addMinutes(time, minutes) {
 
 function formatRemaining(milliseconds) {
   const minutes = Math.ceil(milliseconds / 60000);
-  return minutes <= 0 ? "即将发车" : `${minutes} 分钟后`;
+  return minutes <= 0 ? "即将到站" : `${minutes} 分钟后`;
 }
 
 function updateClock(now = new Date()) {
@@ -63,7 +86,7 @@ function updateClock(now = new Date()) {
 
 function render() {
   const now = new Date();
-  const dayType = isWeekend(now) ? "weekend" : "weekday";
+  const dayType = getScheduleType(now);
   const route = schedules[selectedDirection];
   const returnStop = returnStops[selectedReturnStop];
   const upcoming = route[dayType]
@@ -74,8 +97,8 @@ function render() {
         ? (selectedReturnStop === "zhang" ? zhangLingBinTime : addMinutes(daoYuanTime, returnStop.offset))
         : time;
       return {
-        time,
-        secondaryTime: selectedDirection === "return" && selectedReturnStop !== "daoyuan" ? pickupTime : null,
+        time: selectedDirection === "return" ? pickupTime : time,
+        secondaryTime: selectedDirection === "return" && selectedReturnStop !== "daoyuan" ? daoYuanTime : null,
         pickup: timeToday(pickupTime, now)
       };
     })
@@ -84,7 +107,7 @@ function render() {
     .slice(0, 2);
 
   updateClock(now);
-  serviceDayElement.textContent = isWeekend(now) ? "周末 / 公众假期时刻表" : "工作日时刻表";
+  serviceDayElement.textContent = dayType === "weekend" ? "周末 / 法定节假日时刻表" : "工作日时刻表";
   routeTitleElement.textContent = route.title;
   routeDetailElement.textContent = selectedDirection === "return"
     ? `从道远楼东发车 · ${returnStop.label}上车`
@@ -113,7 +136,10 @@ function render() {
     fragment.querySelector(".departure-countdown").textContent = formatRemaining(remaining);
     const originElement = fragment.querySelector(".origin-departure");
     originElement.hidden = !secondaryTime;
-    if (secondaryTime) originElement.textContent = `${returnStop.label}到站：${secondaryTime}`;
+    if (secondaryTime) originElement.textContent = `道远楼东发车：${secondaryTime}`;
+    fragment.querySelector(".imminent-message").textContent = selectedDirection === "outbound"
+      ? "即将发车"
+      : "即将到站发车";
     fragment.querySelector(".imminent-message").hidden = !imminent;
     card.classList.toggle("imminent", imminent);
     departureListElement.append(fragment);
@@ -129,6 +155,81 @@ document.querySelectorAll(".direction-button").forEach((button) => {
       item.setAttribute("aria-pressed", String(active));
     });
     render();
+    renderQuery();
+  });
+});
+
+function getScheduleRows() {
+  const now = new Date();
+  const route = schedules[selectedDirection];
+  const returnStop = returnStops[selectedReturnStop];
+  const dayType = selectedQueryScheduleType === "weekday" ? "weekday" : "weekend";
+  return route[dayType].map((entry) => {
+    const [zhangTime, daoYuanTime] = Array.isArray(entry) ? entry : [null, entry];
+    const primary = selectedDirection === "return"
+      ? (selectedReturnStop === "zhang" ? zhangTime : addMinutes(daoYuanTime, returnStop.offset))
+      : daoYuanTime;
+    return { primary, source: selectedDirection === "return" && selectedReturnStop !== "daoyuan" ? daoYuanTime : null };
+  });
+}
+
+function renderQuery() {
+  const [startHour, endHour] = hourSelect.value.split("-").map(Number);
+  const now = new Date();
+  const isTodaySchedule = selectedQueryScheduleType === getScheduleType(now);
+  const rows = getScheduleRows().filter(({ primary }) => {
+    const hour = Number(primary.slice(0, 2));
+    return hour >= startHour && hour <= endHour;
+  });
+  queryResult.replaceChildren();
+  if (!rows.length) {
+    queryResult.innerHTML = `<div class="empty-state"><strong>该时段暂无班次</strong><p>请尝试选择其他小时。</p></div>`;
+    return;
+  }
+  rows.forEach(({ primary, source }) => {
+    const row = document.createElement("div");
+    row.className = "query-row";
+    let relative = "";
+    if (isTodaySchedule) {
+      const difference = timeToday(primary, now) - now;
+      const minutes = Math.abs(Math.round(difference / 60000));
+      const duration = minutes > 60
+        ? `${Math.floor(minutes / 60)} 小时 ${minutes % 60} 分钟`
+        : `${minutes} 分钟`;
+      relative = difference >= 0 ? `${duration}后` : `已发车 ${duration}`;
+    }
+    row.innerHTML = `<div class="query-time"><time>${primary}</time>${source ? `<small>道远楼东发车 ${source}</small>` : ""}</div>${relative ? `<span>${relative}</span>` : ""}`;
+    queryResult.append(row);
+  });
+}
+
+const hourGroups = [[7, 8], [9, 11], [12, 14], [15, 17], [18, 20], [21, 22]];
+hourGroups.forEach(([startHour, endHour]) => {
+  const option = document.createElement("option");
+  option.value = `${startHour}-${endHour}`;
+  option.textContent = `${String(startHour).padStart(2, "0")}:00 - ${String(endHour).padStart(2, "0")}:59`;
+  hourSelect.append(option);
+});
+const currentHour = new Date().getHours();
+hourSelect.value = hourGroups.find(([start, end]) => currentHour >= start && currentHour <= end)?.join("-") || "7-8";
+hourSelect.addEventListener("change", renderQuery);
+scheduleTypeSelect.value = selectedQueryScheduleType;
+scheduleTypeSelect.addEventListener("change", () => {
+  selectedQueryScheduleType = scheduleTypeSelect.value;
+  renderQuery();
+});
+
+document.querySelectorAll(".page-tab").forEach((button) => {
+  button.addEventListener("click", () => {
+    const live = button.dataset.page === "live";
+    document.querySelector("#live-view").hidden = !live;
+    document.querySelector("#search-view").hidden = live;
+    document.querySelectorAll(".page-tab").forEach((item) => {
+      const active = item === button;
+      item.classList.toggle("active", active);
+      item.setAttribute("aria-pressed", String(active));
+    });
+    if (!live) renderQuery();
   });
 });
 
@@ -141,6 +242,7 @@ document.querySelectorAll(".stop-button").forEach((button) => {
       item.setAttribute("aria-pressed", String(active));
     });
     render();
+    renderQuery();
   });
 });
 
